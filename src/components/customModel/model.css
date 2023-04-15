@@ -1,0 +1,125 @@
+form.model-container{
+  width: 378px;
+  min-width: 330px;
+  background-color: rgba(0, 0, 0, 0.40);
+  backdrop-filter: 5px;
+  border-radius: 14px;
+  overflow: hidden;
+}
+.line-vertical{
+  border-left: var(--line);
+  height: 100%;
+}
+.model-content{
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.model-content input[type=text],
+.model-content input[type=password],
+.model-content input[type=email]{
+  font-size: 16px;
+  font-weight: 400;
+  color:#eaf2f4;
+
+  background-color: unset;
+  padding: 0px 15px;
+  border: 0;
+  width: 100%;
+  height: 46px;
+  transition: 300ms;
+}
+.model-content input[type=text]::placeholder,
+.model-content input[type=password]::placeholder,
+.model-content input[type=email]::placeholder{
+ font-size: 15px;
+ color: #8a959f;
+}
+.model-content input[type=text]:focus::placeholder,
+.model-content input[type=password]:focus::placeholder,
+.model-content input[type=email]:focus::placeholder{
+  color: #4477a3;
+}
+.model-content input[type=text]:focus,
+.model-content input[type=password]:focus,
+.model-content input[type=email]:focus{
+  background-color: rgba(0, 0, 0, 0.40);
+  color: #2678c2;
+}
+
+.model-footer{
+  height: 46px;
+  border-top: var(--line);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content:space-evenly;
+  width: 100%;  
+}
+.model-header{
+  height: 46px;
+  border-bottom: var(--line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+.model-header h3{
+  margin: 15px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #eaf2f4;
+  text-overflow: ellipsis;
+}
+
+
+.model-footer input[type = button] {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 500;
+  color: #eaf2f4;
+  border: 0;
+  background-color: unset;
+  transition:  background-color 300ms;
+  width: 100%;
+  height: 100%;
+}
+
+.model-footer input[type = submit]{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 500;
+  color: #eaf2f4;
+  border: 0;
+  background-color: unset;
+  transition:  background-color 300ms;
+  height: 100%;
+  width: 100%;
+}
+
+.model-footer input[type = button]:hover,
+.model-footer input[type = submit]:hover{
+  cursor: pointer;
+  color: #2678c2;
+  background-color: rgba(0, 0, 0, 0.40);
+}
+
+.model-footer input[type = button]:active,
+.model-footer input[type = submit]:active{
+  color: #2678c2;
+  background-color: rgba(0, 0, 0, 0.20);
+}
+
+.model-footer input[type = button]:active,
+.model-footer input[type = submit]:active{
+  color: #2678c2;
+  background-color: rgba(0, 0, 0, 0.20);
+}

@@ -1,0 +1,94 @@
+.sensor-data-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 378px;
+  min-width: 330px;
+  height: 134px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 14px;
+  padding: 10px;
+}
+
+.header-sensor-section-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.animated-icon {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 42px;
+  width: 42px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.rotation-animation {
+  animation: spin 0.5s linear infinite;
+}
+@-webkit-keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+@-moz-keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+@keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+.main-sensor-data {
+  font-weight: 600;
+  font-size: 40px;
+  line-height: 48px;
+  color: #fff;
+  margin: 0px 10px;
+}
+.aditional-sensor-data {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.aditional-sensor-data p {
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 18px;
+}
+
+.aditional-data {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.aditional-data-descryption {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.params-sensor-section-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 5px;
+}
+.params-sensor-section-container p {
+  font-size: 15px;
+  line-height: 18px;
+}
+
+.sensor-name {
+  font-weight: 600;
+  color: rgba(255, 255, 255);
+}
+
+.active-param-rule {
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+}
