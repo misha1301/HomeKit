@@ -7,9 +7,21 @@ import cooling_no_conect from "../../assets/cooling_no_conect.svg";
 import { Outlet } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import useAuth from "../../hooks/useAuth";
+
+import {
+  showErrMsg,
+  showWarningMsg,
+  showSucsessMsg,
+} from "../../msgpopup/ShowPopup";
+
 import "./sensor.css";
 
-function Sensor(props) {
+const Sensor = (props) => {
+  const axiosPrivate = useAxiosPrivate();
+
   const sensorData = {
     activeRule: "Зберігати темперетуру в межах 10",
     mainData: "12",
@@ -20,10 +32,32 @@ function Sensor(props) {
     isActive: false,
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axiosPrivate.get("/sensors");
+
+      console.log(JSON.stringify(response));
+
+      showSucsessMsg("Ви успішно отримали всі сенсори");
+
+    } catch (err) {
+      if (!err?.response) {
+        showErrMsg("Немає відповіді від серверу");
+      } else if (err.response?.status == 400) {
+        showWarningMsg("Неправильний e-mail, або пароль");
+      } else if (err.response?.status == 401) {
+        showWarningMsg("Схоже, що ви ще не зареєстровані");
+      } else {
+        showErrMsg("Виникла невідома помилка");
+      }
+    }
+  };
+
   return (
     <>
       {props.type === "active" ? (
-        <section className="sensor-data-section">
+        <section className="sensor-data-section " onClick={handleSubmit}>
           <div className="header-sensor-section-container">
             <div className="animated-icon">
               <img
@@ -63,6 +97,6 @@ function Sensor(props) {
       )}
     </>
   );
-}
+};
 
 export default Sensor;

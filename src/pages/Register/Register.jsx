@@ -4,7 +4,6 @@ import RegisterForm from "../../components/registerModel/RegisterForm";
 
 const Register = () => {
 
-
   return (
      <RegisterForm/>
   );

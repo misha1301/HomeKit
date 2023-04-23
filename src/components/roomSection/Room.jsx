@@ -16,9 +16,9 @@ function Room(props) {
 
   return (
     <section className="room-section">
-      <article>{props.roomName}</article>
+      <article id={props.id} onClick={props.onClick}>{props.roomName}<p>&gt;</p></article>
       <section className="sensors-section">
-        <Sensor {...sensorData}/>
+        {/* <Sensor {...sensorData}/> */}
       </section>
     </section>
   );

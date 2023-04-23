@@ -32,9 +32,8 @@ const LoginForm = () => {
   const navigate = useNavigate();
 
   const userRef = useRef();
-  const errRef = useRef();
 
-  const [userName, setUserName] = useState("");
+  const [username, setUserName] = useState("");
   const [pwd, setPwd] = useState("");
   const [errMsg, setErrMsg] = useState("");
   const [success, setSuccess] = useState(false);
@@ -48,10 +47,11 @@ const LoginForm = () => {
     try {
       const response = await axios.post(
         LOGIN_URL,
-        JSON.stringify({ userName: userName, password: pwd }),
+        JSON.stringify({ username: username, password: pwd }),
         {
           headers: {
             "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
           },
           withCredentials: true,
         }
@@ -59,27 +59,33 @@ const LoginForm = () => {
       console.log(JSON.stringify(response));
 
       const accessToken = response?.data?.accessToken;
-      const status = response?.status;
+      const roles = response?.data?.roles;
 
-      setAuth({ userName, status, accessToken });
+      setAuth({ username, roles, accessToken });
 
       setSuccess(true);
       setUserName("");
+      navigate("/main", {
+        state: { from: location.pathname },
+        replace: true,
+      });
       setPwd("");
+
       //navigate(from, {replace: true});
     } catch (err) {
       if (!err?.response) {
         showErrMsg("Немає відповіді від серверу");
       } else if (err.response?.status == 400) {
-        showErrMsg("Неправильний e-mail, або пароль");
+        showWarningMsg("Неправильний e-mail, або пароль");
+      } else if (err.response?.status == 401) {
+        showWarningMsg("Схоже, що ви ще не зареєстровані");
       } else {
-        showErrMsg("Помилка входу");
+        showErrMsg("Виникла невідома помилка");
       }
-      errRef.current.focus();
     }
   };
 
-  const handleToRegister = (e) => {
+  const handleToRegister = () => {
     navigate("/register", {
       state: { from: location.pathname },
       replace: true,
@@ -95,7 +101,7 @@ const LoginForm = () => {
           placeholder="Ваше ім'я"
           ref={userRef}
           onChange={(e) => setUserName(e.target.value)}
-          value={pwd}
+          value={username}
           required
         />
         <input
