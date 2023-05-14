@@ -1,5 +1,4 @@
 import axios from "axios";
-import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 const BASE_URL = "http://localhost:5500";
 

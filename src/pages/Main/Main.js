@@ -32,9 +32,9 @@ const Main = () => {
   const [selectedRoom, setSelectedRoom] = useState({});
 
   const [settingParam, setSettingParam] = useState("");
-  const [closeAll, setCloseAll] = useState();
+  const [closeAll, setCloseAll] = useState(true);
 
-  const { rooms, error, loading } = useRooms(); // custom hook for uploading users rooms
+  const { rooms, error, loading, setRefreshRooms } = useRooms(); // custom hook for uploading users rooms
   const {
     addOption,
     autoOption,
@@ -46,14 +46,36 @@ const Main = () => {
     navOption,
   } = useNavOption({ closeAll }); // custom hook for avtive nav options
 
+  const { roomId, setRoomId, roomName, setRoomName } = useRoomSetting({
+    selectedRoom,
+  });
+
   const handleCloseNav = () => {
     setAddOption(false);
     setAutoOption(false);
     setSettingOption(false);
+    setCloseAll(!closeAll);
+    console.log(closeAll);
   };
 
   const handleNavSubmit = (e) => {
     e.preventDefault();
+    if (!addOption && !autoOption && !settingOption)
+      showErrMsg("Неможливо виконати операцію");
+    else if (addOption) {
+      if(addName)
+      handleAddSubmit();
+    } else if (autoOption) {
+    } else if (settingOption) {
+      switch (settingParam) {
+        case "roomParam":
+          if (roomName)
+            if (roomName !== selectedRoom?.roomName) handleRenameSubmit();
+          break;
+        default:
+          break;
+      }
+    }
   };
 
   const handleAddSubmit = async () => {
@@ -63,56 +85,46 @@ const Main = () => {
       //handleGetAllUserRooms();
       setAddName("");
       setAddOption(false);
+      setRefreshRooms(true);
     } catch (err) {
-      if (!err?.response) {
-        showErrMsg("Немає відповіді від серверу");
-      } else if (err.response?.status == 400) {
-        showWarningMsg("Неправильний e-mail, або пароль");
-      } else if (err.response?.status == 401) {
-        showWarningMsg("Схоже, що ви ще не зареєстровані");
-      } else {
-        showErrMsg("Виникла невідома помилка");
-      }
+      showErrMsg(err.response.data.message);
     }
   };
 
   const handleRenameSubmit = async () => {
-    console.log("roomName:", addName);
+    console.log("roomName:", roomName);
+    console.log("roomName:", roomId);
     try {
-      const response = await axiosPrivate.put(ROOM_URL, { id: addName });
+      const response = await axiosPrivate.put(ROOM_URL, {
+        id: roomId,
+        roomName: roomName,
+      });
       //handleGetAllUserRooms();
       setAddName("");
-      setAddOption(false);
+      setRefreshRooms(true);
+      setRoomName("");
+      setRoomId("");
+      handleCloseNav();
     } catch (err) {
-      if (!err?.response) {
-        showErrMsg("Немає відповіді від серверу");
-      } else if (err.response?.status == 400) {
-        showWarningMsg("Неправильний e-mail, або пароль");
-      } else if (err.response?.status == 401) {
-        showWarningMsg("Схоже, що ви ще не зареєстровані");
-      } else {
-        showErrMsg("Виникла невідома помилка");
-      }
+      showErrMsg(err.response.data.message);
     }
   };
 
-  const handledeleteSubmit = async () => {
-    console.log("roomName:", addName);
+  const handleDeleteRoom = async () => {
     try {
-      const response = await axiosPrivate.delete(ROOM_URL, { id: addName });
-      //handleGetAllUserRooms();
-      setAddName("");
-      setAddOption(false);
+      const response = await axiosPrivate.delete(ROOM_URL, {
+        data: { id: roomId },
+      });
+      console.log(response);
+
+      setRoomName("");
+      showSucsessMsg("Ви усішно видалили кімнату");
+      setRefreshRooms(true);
+      handleCloseNav();
+
+      //navigate(from, {replace: true});
     } catch (err) {
-      if (!err?.response) {
-        showErrMsg("Немає відповіді від серверу");
-      } else if (err.response?.status == 400) {
-        showWarningMsg("Неправильний e-mail, або пароль");
-      } else if (err.response?.status == 401) {
-        showWarningMsg("Схоже, що ви ще не зареєстровані");
-      } else {
-        showErrMsg("Виникла невідома помилка");
-      }
+      showErrMsg(err.response.data.message);
     }
   };
 
@@ -135,7 +147,7 @@ const Main = () => {
           onClickaddNew={() => setAddOption(true)}
           onClick={(e) => {
             setSettingOption(true);
-            setSettingParam(!settingOption ? "roomProps" : settingParam);
+            setSettingParam(!settingOption ? "roomParam" : settingParam);
             setSelectedRoomID(e.target.id);
           }}
         />
@@ -158,7 +170,7 @@ const Main = () => {
         <NavHeader>
           <input type="button" value="скасувати" onClick={handleCloseNav} />
           <article className="nav-option">{navOption}</article>
-          <input type="submit" value="готово" />
+          <input type="submit" value="готово" onClick={handleNavSubmit} />
         </NavHeader>
         <NavMain>
           <CSSTransition
@@ -190,7 +202,12 @@ const Main = () => {
           >
             <SettingComponent
               param={settingParam}
-              selectedRoom={selectedRoom}
+              selectedRoomName={roomName}
+              selectedOriginName={selectedRoom?.roomName}
+              editedName={(e) => {
+                setRoomName(e.target.value);
+              }}
+              deleteSubmit={handleDeleteRoom}
             />
           </CSSTransition>
         </NavMain>
@@ -295,6 +312,7 @@ function useRooms() {
   const [rooms, setRooms] = useState([]);
   const [error, setError] = useState("");
   const [loading, setloading] = useState(true);
+  const [refreshRooms, setRefreshRooms] = useState(false);
 
   const axiosPrivate = useAxiosPrivate();
 
@@ -306,14 +324,15 @@ function useRooms() {
         setRooms(response.data);
       })
       .catch((err) => {
-        setError(err);
+        showErrMsg(err.response.data.message);
       })
       .finally(() => {
         setloading(false);
       });
-  }, []);
+    setRefreshRooms(false);
+  }, [refreshRooms]);
 
-  return { rooms, error, loading };
+  return { rooms, error, loading, setRefreshRooms };
 }
 
 const useNavOption = ({ closeAll }) => {
@@ -388,4 +407,16 @@ const useNavOption = ({ closeAll }) => {
     activeMenu,
     navOption,
   };
+};
+
+const useRoomSetting = ({ selectedRoom }) => {
+  const [roomName, setRoomName] = useState(selectedRoom?.roomName);
+  const [roomId, setRoomId] = useState(selectedRoom?._id);
+
+  useEffect(() => {
+    setRoomName(selectedRoom?.roomName);
+    setRoomId(selectedRoom?._id);
+  }, [selectedRoom]);
+
+  return { roomId, setRoomId, roomName, setRoomName };
 };

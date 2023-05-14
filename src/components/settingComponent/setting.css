@@ -1,0 +1,48 @@
+.room-setting{
+  display: flex;
+  flex-direction: column;
+  row-gap: 35px;
+}
+
+.room-setting div > article {
+  font-size: 17px;
+  font-weight: 300;
+  color: #eaf2f4;
+  margin: 20px 0px 10px 5px;
+}
+.room-setting div > input[type="text"] {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border: none;
+  border-radius: 10px;
+  padding: 0px 10px;
+  width: 100%;
+  height: 44px;
+  font-size: 17px;
+  color: #333;
+}
+
+.room-setting > input[type="button"] {
+  outline: none !important;
+  background-color: rgba(11, 1, 21, 0.5);
+  display: flex;
+  border: none;
+  border-radius: 10px;
+  padding: 0px 10px;
+  width: 100%;
+  height: 44px;
+  font-size: 17px;
+  color: #ff3131;
+  transition:  background-color 300ms;
+}
+
+.room-setting > input[type="button"]:hover {
+  background-color: rgba(11, 1, 21, 0.7);
+  cursor: pointer;
+}
+
+.room-setting > input[type="button"]:active {
+  background-color: rgba(11, 1, 21, 0.7);
+  cursor: pointer;
+}
