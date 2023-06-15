@@ -21,12 +21,22 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import "./main.css";
 
 const ROOM_URL = "/rooms";
+const SENSORS_URL = "/sensors";
 
 const Main = () => {
   const axiosPrivate = useAxiosPrivate();
-  const { auth } = useAuth();
+  const { auth, selectedSensors } = useAuth();
 
   const [addName, setAddName] = useState("");
+  const [addSecure, setAddSecure] = useState("");
+  const [addSelectedRoom, setAddSelectedRoom] = useState("");
+  const [selectedSensorID, setSelectedSensorID] = useState("");
+  const [selectedSensor, setSelectedSensor] = useState("");
+  const [selectedOption, setSelectedOption] = useState("device");
+
+  const [currentMinTemp, setCurrentMinTemp] = useState(0);
+  const [currentMaxTemp, setCurrentMaxTemp] = useState(0);
+  const [currentIsOn, setCurrentIsOn] = useState(false);
 
   const [selectedRoomID, setSelectedRoomID] = useState("");
   const [selectedRoom, setSelectedRoom] = useState({});
@@ -60,17 +70,30 @@ const Main = () => {
 
   const handleNavSubmit = (e) => {
     e.preventDefault();
+
     if (!addOption && !autoOption && !settingOption)
       showErrMsg("Неможливо виконати операцію");
-    else if (addOption) {
-      if(addName)
-      handleAddSubmit();
+
+    if (addOption) {
+      console.log(selectedOption);
+      if (selectedOption === "device") {
+        console.log(addName);
+        console.log(addSelectedRoom);
+        console.log(addSecure);
+        if (addName && addSelectedRoom && addSecure);
+        handleAddControllerSubmit();
+      } else if (selectedOption === "room") {
+        if (addName) handleAddSubmit();
+      }
     } else if (autoOption) {
     } else if (settingOption) {
       switch (settingParam) {
         case "roomParam":
           if (roomName)
             if (roomName !== selectedRoom?.roomName) handleRenameSubmit();
+          break;
+        case "sensorParam":
+          if (selectedSensorID) handleUpdateSensorSubmit();
           break;
         default:
           break;
@@ -91,9 +114,50 @@ const Main = () => {
     }
   };
 
+  const handleUpdateSensorSubmit = async () => {
+    console.log("заміна параметрів ", selectedSensor);
+    console.log("currentIsOn: ", currentIsOn);
+    console.log("currentMaxTemp: ", currentMaxTemp);
+    console.log("currentMinTemp: ", currentMinTemp);
+    try {
+      const response = await axiosPrivate.put(SENSORS_URL, {
+        id: selectedSensorID,
+        settingState: true,
+        maxTemp: currentMaxTemp,
+        minTemp: currentMinTemp,
+        isOn: currentIsOn,
+      });
+      //handleGetAllUserRooms();
+      setSelectedSensorID("");
+      setSettingOption(false);
+      setRefreshRooms(true);
+    } catch (err) {
+      showErrMsg(err.response.data.message);
+    }
+  };
+
+  const handleAddControllerSubmit = async () => {
+    console.log("roomName:", addName);
+    console.log("roomID", addSelectedRoom);
+    console.log("secure", addSecure);
+    try {
+      const response = await axiosPrivate.post(SENSORS_URL, {
+        roomID: addSelectedRoom,
+        name: addName,
+        secure: addSecure,
+      });
+      //handleGetAllUserRooms();
+      setAddName("");
+      setAddOption(false);
+      setRefreshRooms(true);
+    } catch (err) {
+      showErrMsg(err.response.data.message);
+    }
+  };
+
   const handleRenameSubmit = async () => {
     console.log("roomName:", roomName);
-    console.log("roomName:", roomId);
+    console.log("roomId:", roomId);
     try {
       const response = await axiosPrivate.put(ROOM_URL, {
         id: roomId,
@@ -133,6 +197,21 @@ const Main = () => {
       setSelectedRoom(rooms.find((prop) => prop._id == selectedRoomID));
   }, [selectedRoomID]);
 
+  useEffect(() => {
+    if (selectedSensors.length != 0)
+      setSelectedSensor(
+        selectedSensors.find((prop) => prop._id == selectedSensorID)
+      );
+  }, [selectedSensorID]);
+
+  useEffect(() => {
+    if (selectedSensors.length != 0) {
+      setCurrentMinTemp(selectedSensor?.state?.minTemp);
+      setCurrentMaxTemp(selectedSensor?.state?.maxTemp);
+      setCurrentIsOn(selectedSensor?.state?.isOn);
+    }
+  }, [selectedSensor]);
+
   return (
     <>
       <header>
@@ -149,6 +228,12 @@ const Main = () => {
             setSettingOption(true);
             setSettingParam(!settingOption ? "roomParam" : settingParam);
             setSelectedRoomID(e.target.id);
+          }}
+          onSensorClick={(e) => {
+            console.log("clicked ---> ", e.target.id);
+            setSettingOption(true);
+            setSettingParam(!settingOption ? "sensorParam" : settingParam);
+            setSelectedSensorID(e.target.id);
           }}
         />
       </main>
@@ -182,7 +267,14 @@ const Main = () => {
             <AddComponent
               rooms={rooms}
               addName={addName}
+              addSecure={addSecure}
+              selectedOption={selectedOption}
+              onChangeSelectedOption={(e) => setSelectedOption(e.target.value)}
+              onChangeAddSecure={(e) => setAddSecure(e.target.value)}
               onChangeAddName={(e) => setAddName(e.target.value)}
+              onChangeSetSelectedRoom={(e) =>
+                setAddSelectedRoom(e.target.value)
+              }
             />
           </CSSTransition>
           <CSSTransition
@@ -208,6 +300,22 @@ const Main = () => {
                 setRoomName(e.target.value);
               }}
               deleteSubmit={handleDeleteRoom}
+              onChangeMinTemp={(e) => {
+                setCurrentMinTemp(e.target.value);
+                console.log("setCurrentMinTemp");
+                console.log(e.target.value);
+              }}
+              onChangeMaxTemp={(e) => {
+                setCurrentMaxTemp(e.target.value);
+                console.log("setCurrentMaxTemp");
+                console.log(e.target.value);
+              }}
+              currentMinTemp={currentMinTemp}
+              currentMaxTemp={currentMaxTemp}
+              currentIsOn={currentIsOn}
+              onClickOnOff={() => {
+                setCurrentIsOn(!currentIsOn);
+              }}
             />
           </CSSTransition>
         </NavMain>
@@ -218,7 +326,7 @@ const Main = () => {
 
 export default Main;
 
-const Rooms = ({ rooms, onClick, onClickaddNew }) => {
+const Rooms = ({ rooms, onClick, onClickaddNew, onSensorClick }) => {
   return (
     <>
       {rooms?.length != 0 ? (
@@ -227,6 +335,7 @@ const Rooms = ({ rooms, onClick, onClickaddNew }) => {
             key={room._id}
             id={room._id}
             onClick={onClick}
+            onSensorClick={onSensorClick}
             roomName={room?.roomName}
           />
         ))
@@ -239,9 +348,16 @@ const Rooms = ({ rooms, onClick, onClickaddNew }) => {
   );
 };
 
-const AddComponent = ({ rooms, addName, onChangeAddName }) => {
-  const [selectedOption, setSelectedOption] = useState("device");
-
+const AddComponent = ({
+  rooms,
+  addName,
+  addSecure,
+  onChangeAddSecure,
+  onChangeAddName,
+  onChangeSetSelectedRoom,
+  selectedOption,
+  onChangeSelectedOption,
+}) => {
   return (
     <div className="add">
       <article>Виберіть опцію</article>
@@ -256,9 +372,7 @@ const AddComponent = ({ rooms, addName, onChangeAddName }) => {
             name="select"
             checked={selectedOption === "device" ? true : false}
             value="device"
-            onChange={(e) => {
-              setSelectedOption(e.target.value);
-            }}
+            onChange={onChangeSelectedOption}
           />
           <h4>Пристрій</h4>
         </label>
@@ -270,9 +384,7 @@ const AddComponent = ({ rooms, addName, onChangeAddName }) => {
             name="select"
             value="room"
             checked={selectedOption === "room" ? true : false}
-            onChange={(e) => {
-              setSelectedOption(e.target.value);
-            }}
+            onChange={onChangeSelectedOption}
           />
           <h4>Кімнату</h4>
         </label>
@@ -290,11 +402,27 @@ const AddComponent = ({ rooms, addName, onChangeAddName }) => {
       />
       {selectedOption === "device" ? (
         <>
+          <article>Введіть ідентифікатор пристрою</article>
+          <input
+            type="text"
+            placeholder="xxxx-xxxx"
+            onChange={onChangeAddSecure}
+            value={addSecure}
+          />
+        </>
+      ) : (
+        <></>
+      )}
+      {selectedOption === "device" ? (
+        <>
           <article>Оберіть кімнату для пристрою</article>
-          <select>
+          <select onChange={onChangeSetSelectedRoom}>
+            <option value="" selected disabled hidden>
+              Оберіть кімнату
+            </option>
             {rooms?.length != 0
               ? rooms.map((room) => (
-                  <option key={room._id} id={room._id}>
+                  <option key={room._id} value={room._id} id={room._id}>
                     {room.roomName}
                   </option>
                 ))

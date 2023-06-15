@@ -1,5 +1,5 @@
-import React from "react";
-import { Navigate, Routes, Route } from "react-router-dom";
+import React, { useEffect} from "react";
+import { Navigate, useNavigate,  Routes, Route } from "react-router-dom";
 
 import Layout from "./layouts/Layout";
 import GuessLayout from "./layouts/GuessLayout";
@@ -10,11 +10,16 @@ import "./App.css";
 import "./msgpopup/msgpopup.css";
 
 function App() {
+  const navigate = useNavigate();
   const ROLES_LIST = {
     Admin: 5001,
     Editor: 4001,
     User: 3001,
   };
+
+  // useEffect(() =>{
+  //   navigate('/login', { replace: true });
+  // },[])
 
   return (
     <Routes>

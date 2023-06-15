@@ -22,79 +22,62 @@ import "./sensor.css";
 const Sensor = (props) => {
   const axiosPrivate = useAxiosPrivate();
 
-  const sensorData = {
-    activeRule: "Зберігати темперетуру в межах 10",
-    mainData: "12",
-    aditionalData: "53% в.в",
-    aditionalDataDescryption: "в середині",
-    conection: true,
-    state: true,
-    isActive: false,
-  };
+  console.log("props", props);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axiosPrivate.get("/sensors");
-
-      console.log(JSON.stringify(response));
-
-      showSucsessMsg("Ви успішно отримали всі сенсори");
-
-    } catch (err) {
-      if (!err?.response) {
-        showErrMsg("Немає відповіді від серверу");
-      } else if (err.response?.status == 400) {
-        showWarningMsg("Неправильний e-mail, або пароль");
-      } else if (err.response?.status == 401) {
-        showWarningMsg("Схоже, що ви ще не зареєстровані");
-      } else {
-        showErrMsg("Виникла невідома помилка");
-      }
-    }
-  };
+  function diff_minutes(dt1) {
+    let splitData = dt1.split(" ")
+    console.log(splitData);
+    let curentDate  =  new Date();
+    // var diff = (curentDate.getTime() - dt1.getTime()) / 1000;
+    // diff /= 60;
+    // return Math.abs(Math.round(diff));
+  }
 
   return (
     <>
-      {props.type === "active" ? (
-        <section className="sensor-data-section " onClick={handleSubmit}>
-          <div className="header-sensor-section-container">
-            <div className="animated-icon">
-              <img
-                className={
-                  sensorData.conection && sensorData.state
-                    ? sensorData.isActive
-                      ? "rotation-animation animated-icon-img"
-                      : "animated-icon-img"
+      <section
+        className="sensor-data-section "
+        id={props._id}
+        onClick={props.onClick}
+      >
+        <div className="header-sensor-section-container">
+          <div className="animated-icon">
+            <img
+              className={
+                props.state.isOn
+                  ? props.state.isWorking
+                    ? "rotation-animation animated-icon-img"
                     : "animated-icon-img"
-                }
-                src={
-                  sensorData.conection
-                    ? sensorData.state
-                      ? cooling_active
-                      : cooling_off
-                    : cooling_no_conect
-                }
-                alt=""
-                height="25px"
-              />
-            </div>
-            <div className="main-sensor-data">{sensorData?.mainData}</div>
-            <div className="aditional-sensor-data">
-              <p className="aditional-data">{sensorData.aditionalData}</p>
-              <p className="aditional-data-descryption">
-                {sensorData?.aditionalDataDescryption}
-              </p>
-            </div>
+                  : "animated-icon-img"
+              }
+              src={
+                // sensorData.conection ?
+                props.state.isOn ? cooling_active : cooling_off
+                //: cooling_no_conect
+              }
+              alt=""
+              height="25px"
+            />
           </div>
-          <div className="params-sensor-section-container">
-            <p className="sensor-name">{props?.name}</p>
-            <p className="active-param-rule">{sensorData?.activeRule}</p>
+          <div className="main-sensor-data">
+            {props.sensors.inside.temperature} &#xb0;C
           </div>
-        </section>
-      ) : (
-        <></>
-      )}
+          <div className="aditional-sensor-data">
+            <p className="aditional-data">{props.sensors.inside.humidity} %</p>
+            <p className="aditional-data-descryption">в середині</p>
+          </div>
+        </div>
+        <div className="params-sensor-section-container">
+          <p className="sensor-name">{props?.name}</p>
+          <p className="active-param-rule">
+            Зберігати темперетуру в межах {props.state.minTemp}-
+            {props.state.maxTemp} &#xb0;C
+          </p>
+          {
+            diff_minutes(props.state.lastConnection)
+          }
+        </div>
+      </section>
     </>
   );
 };

@@ -13,8 +13,15 @@ const SettingComponent = (props) => {
             roomName={props.selectedRoomName}
             originRoomName={props.selectedOriginName}
           />
-        ) : props.param == "sensorProps" ? (
-          <SensorSettings />
+        ) : props.param == "sensorParam" ? (
+          <SensorSettings 
+            onChangeMinTemp={props.onChangeMinTemp}
+            onChangeMaxTemp={props.onChangeMaxTemp}
+            currentMinTemp={props.currentMinTemp}
+            currentMaxTemp={props.currentMaxTemp}
+            currentIsOn={props.currentIsOn}
+            onClick={props.onClickOnOff}
+          />
         ) : (
           <MainSetting />
         )

@@ -6,14 +6,14 @@ const RequireAuth = ({ allowedRoles }) => {
   const location = useLocation();
 
   return (
-    <Outlet />
-    // auth?.roles.find(role => allowedRoles?.includes(role)) ? (
-    //   <Outlet />
-    // ) : auth?.user ? (
-    //   <Navigate to="/login" state={{ from: location }} replace />//unoutorized
-    // ) : (
-    //   <Navigate to="/login" state={{ from: location }} replace />
-    // )
+    // <Outlet />
+    auth?.roles.find(role => allowedRoles?.includes(role)) ? (
+      <Outlet />
+    ) : auth?.user ? (
+      <Navigate to="/login" state={{ from: location }} replace />//unoutorized
+    ) : (
+      <Navigate to="/login" state={{ from: location }} replace />
+    )
   );
 };
 
